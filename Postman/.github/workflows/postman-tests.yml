@@ -1,30 +1,27 @@
-name: Run Postman Tests with Newman
+name: Run Postman Tests
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:  # Cho phép chạy thủ công
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-
-      - name: Install Newman
-        run: npm install -g newman
-
-      - name: Run Postman Collection
+      - name: Install Postman CLI
         run: |
-          newman run postman/collection.json \
-            -e postman/environment.json \
-            --env-var "api_key=${{ secrets.API_KEY }}"
-            --reporters cli,junit \
-            --reporter-junit-export results/report.xml
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+
+      - name: Login to Postman CLI
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+        run: postman login --with-api-key $POSTMAN_API_KEY
+
+      - name: Run Postman tests
+        run: |
+          postman collection run 49644808-922afc04-b9d1-4794-9cba-a9796132449d -e 49644808-fa57d09c-7940-416c-bd04-77d57230d9a5
