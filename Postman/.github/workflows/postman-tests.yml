@@ -25,5 +25,6 @@ jobs:
         run: |
           newman run postman/collection.json \
             -e postman/environment.json \
+            --env-var "api_key=${{ secrets.API_KEY }}"
             --reporters cli,junit \
             --reporter-junit-export results/report.xml
